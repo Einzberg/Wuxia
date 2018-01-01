@@ -4,27 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.HashMap;
 
-/**
- * Created by MaxBlue on 12/21/2017.
- */
 
     public class ChapterListTask extends AsyncTask<String, Integer, ArrayList> {
-        public Context context;
-        public View view;
-        public String novelName;
-        public ChapterListExtractor chapterExtractor;
+        private Context context;
+        private View view;
+        private String novelName;
+        private ChapterListExtractor chapterExtractor;
 
-        public ChapterListTask(Context context, View view, String novelName){
+        ChapterListTask(Context context, View view, String novelName){
             this.context = context;
             this.view = view;
             this.novelName = novelName;
@@ -33,28 +26,24 @@ import java.util.Set;
     @Override
     protected ArrayList doInBackground(String... strings) {
         chapterExtractor = new ChapterListExtractor();
-        ArrayList chapters = chapterExtractor.GetChaptersList(strings[0]);
-//        Arrays.sort(chapters);
-        return chapters;
+        return chapterExtractor.GetChaptersList(strings[0]);
     }
 
     @Override
     protected void onPostExecute(ArrayList chapters){
-        ChaptersList chapterList = new ChaptersList();
-        int randomid = 6666;
+        int startingId = 7777;
         for (Object chapter : chapters){
-            CreateChapterButton(randomid, chapter);
-            randomid++;
+            CreateChapterButton(startingId, chapter, chapters);
+            startingId++;
         }
     }
 
-    public void CreateChapterButton(int id, final Object chapter) {
+    private void CreateChapterButton(int id, final Object chapter, final ArrayList chapters) {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         Button btn = new Button(context);
         btn.setId(id);
-        final int id_ = btn.getId();
         btn.setText(chapter.toString());
         btn.setBackgroundColor(Color.rgb(198, 226, 255));
         LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.scrollLinearLayourId);
@@ -63,9 +52,13 @@ import java.util.Set;
             @Override
             public void onClick(View view) {
                 String chapterUrl = chapterExtractor.GetUrlFromChapters(novelName, chapter.toString());
-//                String chapterContent = chapterExtractor.GetArticleFromHtml(chapterUrl);
+                HashMap chaptersandurls = chapterExtractor.GetChaptersAndUrls(novelName);
                 Intent startIntent = new Intent(context, ChapterContent.class);
                 startIntent.putExtra("chapterUrl", chapterUrl);
+                startIntent.putExtra("chapterArray", chapters);
+                startIntent.putExtra("chapter", chapter.toString());
+                startIntent.putExtra("allUrls", chaptersandurls);
+                startIntent.putExtra("novelName", novelName);
                 context.startActivity(startIntent);
             }
         });

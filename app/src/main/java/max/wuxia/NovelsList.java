@@ -11,7 +11,7 @@ public class NovelsList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("onCreate", "onCreateCalled");
+        Log.d("onCreate", "novelListOnCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_novels_list);
 
